@@ -192,63 +192,66 @@ void InsertVex(ALGraph *G,VertexType v)
 }
 
 //Delete Vertex
-void Delete(ALGraph *g,VertexType v)
+int Delete(ALGraph *G, VertexType v)
 {
-	int i,j=LocateVex(g,v);
-	ArcNode *p=NULL,*q=NULL;
+	int i, j;
+	ArcNode *p=NULL, *q=NULL;
 
-	p=g->vertices[j].firstarc;											//delete the arc of this vertex
+	j = LocateVex(G, v);    
+	if (j < 0)            
+		return 0;
+	p = (*G).vertices[j].firstarc;  
 	while (p)
 	{
-		q=p;
-		p=p->next;
-		if (g->kind%2)													//net
+		q = p;
+		p = p->next;
+		if ((*G).kind % 2)     
 			q->weight=0;
 		free(q);
-		g->arcnum--;
+		(*G).arcnum--;      
 	}
-
-	for (i=j;i<g->vexnum;i++)											//move the vertice
-		g->vertices[i]=g->vertices[i+1];
-	g->vexnum--;
-
-	for (i=0;i<g->vexnum;i++)
+	(*G).vexnum--;    
+	for (i = j; i < (*G).vexnum; i++)  
+		(*G).vertices[i] = (*G).vertices[i + 1];
+	 
+	for (i = 0; i < (*G).vexnum; i++)
 	{
-		p=g->vertices[i].firstarc;
-
-		while(p)
+		p = (*G).vertices[i].firstarc; 
+		while (p)    
 		{
-			if (p->adjvex==j)
+			if (p->adjvex == j)         
 			{
-				if (p==g->vertices[i].firstarc)
+				if (p == (*G).vertices[i].firstarc) 
 				{
-					g->vertices[i].firstarc=p->next;
-					if (g->kind%2)
+					(*G).vertices[i].firstarc = p->next;
+					if ((*G).kind % 2)    
 						p->weight=0;
 					free(p);
-					if (g->kind<2)										//have direction
-						g->arcnum--;
+					p = (*G).vertices[i].firstarc;
+					if ((*G).kind < 2)   
+						(*G).arcnum--;   
 				}
 				else
 				{
-					q->next=p->next;
-					if (g->kind%2)
+					q->next = p->next;
+					if ((*G).kind % 2) // 网   
 						p->weight=0;
 					free(p);
-					p=q->next;
-					if (g->kind<2)										//have direction
-						g->arcnum--;
+					p = q->next;
+					if ((*G).kind < 2)    // 有向   
+						(*G).arcnum--;  // 弧或边数减1   
 				}
 			}
 			else
 			{
-				if (p->adjvex>j)
-					p->adjvex--;
-				q=p;
-				p=p->next;
+				if (p->adjvex > j)
+					p->adjvex--; // 修改表结点的顶点位置值(序号)   
+				q = p;
+				p = p->next;
 			}
 		}
 	}
+	return 1;
 }
 
 //Insert Arc
@@ -508,7 +511,7 @@ int main()
     CreateGraph(&g);  
     Display(g);  
       
-    printf("Please input the head and tail of the arc you want to delete:\n");  
+    printf("Please input the tail and head of the arc you want to delete:\n");  
     scanf("%s%s",v1,v2);  
     DeleteArc(&g,v1,v2);  
     Display(g);  
@@ -524,7 +527,7 @@ int main()
     Display(g);  
       
       
-    printf("To insert new arc,please inout the arc numbers:");  
+    printf("To insert new arc,please input the arc numbers:");  
     scanf("%d",&n);  
     for(k=0;k<n;k++)  
     {  
